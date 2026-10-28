@@ -1,0 +1,47 @@
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+env/
+.env
+backend/.env
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite
+*.sqlite3
+
+# Node & Expo Mobile
+node_modules/
+mobile/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.expo/
+mobile/.expo/
+dist/
+web-build/
+mobile/web-build/
+mobile/.env
+
+# Native builds
+*.orig.*
+[A-a]ndroid/
+[I-i]os/
+mobile/android/
+mobile/ios/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
