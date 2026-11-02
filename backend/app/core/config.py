@@ -1,3 +1,4 @@
+import json
 from typing import List, Union, Optional
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,20 +14,36 @@ class Settings(BaseSettings):
     # CORS configuration
     CORS_ORIGINS: List[str] = [
         "http://localhost:8081",
+        "http://127.0.0.1:8081",
         "http://localhost:19006",
         "http://localhost:3000",
-        "http://127.0.0.1:8081",
-        "*",
     ]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
+        if isinstance(v, str):
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    origins = json.loads(v)
+                    cleaned = [str(o).strip() for o in origins if str(o).strip() and str(o).strip() != "*"]
+                    if cleaned:
+                        return cleaned
+                except Exception:
+                    pass
+            parts = [i.strip() for i in v.split(",") if i.strip() and i.strip() != "*"]
+            if parts:
+                return parts
         elif isinstance(v, list):
-            return v
-        return ["*"]
+            cleaned = [str(i).strip() for i in v if str(i).strip() and str(i).strip() != "*"]
+            if cleaned:
+                return cleaned
+        return [
+            "http://localhost:8081",
+            "http://127.0.0.1:8081",
+            "http://localhost:19006",
+            "http://localhost:3000",
+        ]
 
     # Supabase Auth Configuration
     SUPABASE_URL: str = ""

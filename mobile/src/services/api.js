@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_V1_PREFIX } from '../constants/Config';
+import { getBackendBaseUrl, API_V1_PREFIX } from '../constants/Config';
 import { supabase } from './supabase';
 
 const DEFAULT_TIMEOUT_MS = 8000;
@@ -17,7 +17,8 @@ export function setOnUnauthorizedHandler(callback) {
  */
 export async function apiFetch(endpoint, options = {}) {
   const { timeoutMs = DEFAULT_TIMEOUT_MS, headers = {}, requiresAuth = false, ...rest } = options;
-  const url = `${API_BASE_URL}${API_V1_PREFIX}${endpoint}`;
+  const baseUrl = getBackendBaseUrl();
+  const url = `${baseUrl}${API_V1_PREFIX}${endpoint}`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -79,11 +80,11 @@ export async function apiFetch(endpoint, options = {}) {
     clearTimeout(timeoutId);
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        throw new Error(`Request timed out after ${timeoutMs}ms. Backend at ${API_BASE_URL} took too long to respond.`);
+        throw new Error(`Request timed out after ${timeoutMs}ms. Backend at ${baseUrl} took too long to respond.`);
       }
       if (error.message.includes('Network request failed') || error.message.includes('Failed to fetch')) {
         throw new Error(
-          `Cannot connect to backend at ${API_BASE_URL}. Ensure FastAPI is running on host 0.0.0.0 and your device is on the same network.`
+          `Cannot connect to backend at ${baseUrl}. Ensure FastAPI is running on host 0.0.0.0 and your device is on the same network.`
         );
       }
       throw error;

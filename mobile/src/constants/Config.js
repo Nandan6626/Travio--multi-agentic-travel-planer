@@ -13,7 +13,14 @@ export function getBackendBaseUrl() {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  const debuggerHost = Constants.expoConfig?.hostUri;
+  // If running in browser (web), dynamically match the browser's current host
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
+    const hostname = window.location.hostname;
+    return `http://${hostname}:8000`;
+  }
+
+  // If running in Expo Go on mobile device, derive laptop LAN IP from hostUri
+  const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost;
   if (debuggerHost) {
     const ip = debuggerHost.split(':')[0];
     if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
@@ -21,6 +28,7 @@ export function getBackendBaseUrl() {
     }
   }
 
+  // Android emulator fallback
   if (Platform.OS === 'android') {
     return 'http://10.0.2.2:8000';
   }
