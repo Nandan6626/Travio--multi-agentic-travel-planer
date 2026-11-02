@@ -1,6 +1,6 @@
 # Travio AI: Architecture, Database Design & Roadmap
 
-Travio AI is a production-oriented AI travel-planning mobile application built as a **modular monolith** with a **React Native (Expo + TypeScript)** frontend and a **FastAPI + LangGraph + PostgreSQL** backend.
+Travio AI is a production-oriented AI travel-planning mobile application built as a **modular monolith** with a **React Native (Expo + JavaScript/JSX)** frontend and a **FastAPI + LangGraph + PostgreSQL** backend.
 
 ---
 
@@ -66,7 +66,7 @@ graph TB
             PlacesAdapter["Places Adapter (Geoapify)"]
             RoutingAdapter["Routing Adapter (OSRM)"]
             WeatherAdapter["Weather Adapter (Open-Meteo)"]
-            FlightHotelAdapter["Flight & Hotel Adapter (Amadeus)"]
+            FlightHotelAdapter["Flight & Hotel Adapter (Duffel API)"]
             CircuitBreaker["Timeout & Fallback Handler"]
         end
     end
@@ -291,11 +291,16 @@ erDiagram
 
 ### Estimated vs. Verified Prices
 - `estimated_cost`: AI or heuristic estimation (e.g. typical museum ticket, lunch budget).
-- `verified_price`: Authoritative, live provider offer price (e.g. exact Amadeus flight quote or confirmed hotel reservation).
+- `verified_price`: Authoritative, live provider offer price (e.g. exact Duffel flight quote or confirmed hotel stay offer).
 - `is_provider_verified`: Boolean flag strictly set to `True` only when linked to a valid `TRAVEL_OFFERS` record.
+- **Data Integrity & Non-Fabrication**: Price amounts and currencies are never invented, estimated, or fabricated under the guise of verified prices. If provider results are not available or expired, honest empty responses or 503 provider-unavailable statuses are returned.
 
-### Primary Provider Adapters (Initial Baseline)
+### Primary Provider Adapters (Unified Modern Stack)
+- **Flights & Accommodations / Stays**: **Duffel API** (`https://duffel.com/docs`)
+  - *Context*: Replaced legacy Amadeus Self-Service APIs due to developer portal discontinuation.
+  - *Flights API*: `POST /air/offer_requests` (slices, passengers, cabin classes, duration, stops, exact prices, validity).
+  - *Stays API*: `POST /stays/search` (coordinates/radius, check-in/out, guests, rooms, rate details, cancellation terms).
+  - *Authentication*: Bearer token (`DUFFEL_ACCESS_TOKEN`) with `Duffel-Version: v2` header.
 - **Places & POIs**: Geoapify Places API (with fallback to OpenStreetMap / Nominatim)
 - **Routing & Travel Duration**: OSRM (Open Source Routing Machine API)
 - **Weather Forecast**: Open-Meteo API (free, reliable, requires no API key)
-- **Flights & Hotels**: Amadeus API (with mock/sandbox fallback during local development)

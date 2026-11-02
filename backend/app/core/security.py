@@ -79,10 +79,12 @@ class SupabaseAuthVerifier:
                 except Exception as e:
                     logger.warning(f"Failed to fetch public key from JWKS: {e}")
 
-        # Fallback to SUPABASE_JWT_SECRET
+        # Fallback to SUPABASE_JWT_SECRET or SUPABASE_SECRET_KEY
         if not key_or_secret:
             if settings.SUPABASE_JWT_SECRET:
                 key_or_secret = settings.SUPABASE_JWT_SECRET
+            elif settings.SUPABASE_SECRET_KEY:
+                key_or_secret = settings.SUPABASE_SECRET_KEY
             else:
                 # If neither secret nor JWKS is available, cannot verify token
                 logger.error("No Supabase verification secret or JWKS configured")

@@ -1,0 +1,14 @@
+# Backend environment & virtualenv
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.sqlite
+*.sqlite3
+

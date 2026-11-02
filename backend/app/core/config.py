@@ -30,6 +30,8 @@ class Settings(BaseSettings):
 
     # Supabase Auth Configuration
     SUPABASE_URL: str = ""
+    SUPABASE_PUBLISHABLE_KEY: Optional[str] = None
+    SUPABASE_SECRET_KEY: Optional[str] = None
     SUPABASE_JWT_SECRET: str = ""
     SUPABASE_AUDIENCE: str = "authenticated"
     SUPABASE_JWKS_URL: Optional[str] = None
@@ -45,10 +47,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/travio_db"
     DATABASE_ECHO: bool = False
 
-    # External Provider Credentials (Milestone 4)
+    # External Provider Credentials
     GEOAPIFY_API_KEY: str = ""
-    AMADEUS_API_KEY: str = ""
-    AMADEUS_API_SECRET: str = ""
+    DUFFEL_ACCESS_TOKEN: str = ""
+    DUFFEL_API_URL: str = "https://api.duffel.com"
+    DUFFEL_VERSION: str = "v2"
     OPENAI_API_KEY: str = ""
 
     model_config = SettingsConfigDict(

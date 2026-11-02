@@ -336,15 +336,20 @@ export function TripsManager() {
                   </View>
                 </View>
 
-                {isOwner && (
-                  <View style={styles.tripActions}>
+                <View style={styles.tripActions}>
+                  <TouchableOpacity
+                    style={styles.itineraryButton}
+                    onPress={() => router.push({ pathname: '/trip-details', params: { id: trip.id } })}>
+                    <Text style={styles.itineraryButtonText}>📅 Itinerary &amp; Map →</Text>
+                  </TouchableOpacity>
+                  {isOwner && (
                     <TouchableOpacity
                       style={styles.deleteButton}
                       onPress={() => handleDeleteTrip(trip.id, trip.title)}>
                       <Text style={styles.deleteButtonText}>Delete Trip</Text>
                     </TouchableOpacity>
-                  </View>
-                )}
+                  )}
+                </View>
               </View>
             );
           })}
@@ -638,10 +643,22 @@ const styles = StyleSheet.create({
   },
   tripActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: '#334155',
     paddingTop: 8,
+  },
+  itineraryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#1E3A8A',
+  },
+  itineraryButtonText: {
+    color: '#93C5FD',
+    fontSize: 12,
+    fontWeight: '700',
   },
   deleteButton: {
     paddingHorizontal: 10,

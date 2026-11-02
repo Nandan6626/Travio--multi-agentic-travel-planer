@@ -16,6 +16,7 @@ from app.core.database import Base, TimestampMixin, GUID
 
 if TYPE_CHECKING:
     from app.models.profile import Profile
+    from app.models.itinerary import ItineraryDay
 
 
 class TripRole(str, Enum):
@@ -56,6 +57,12 @@ class Trip(Base, TimestampMixin):
         "TripMember",
         back_populates="trip",
         cascade="all, delete-orphan",
+    )
+    days: Mapped[List["ItineraryDay"]] = relationship(
+        "ItineraryDay",
+        back_populates="trip",
+        cascade="all, delete-orphan",
+        order_by="ItineraryDay.day_number",
     )
 
 

@@ -21,11 +21,11 @@ export default function HomeScreen() {
             Autonomous Multi-Agent Travel Planning &amp; Execution
           </Text>
           <View style={styles.milestonePill}>
-            <Text style={styles.milestoneText}>Milestone 2 • Database, Auth &amp; Trip Security</Text>
+            <Text style={styles.milestoneText}>Milestone 3 • Itineraries, Activity Editing &amp; Interactive Maps</Text>
           </View>
         </View>
 
-        {/* Milestone 2: Authenticated Trip Manager */}
+        {/* Milestone 2 & 3: Authenticated Trip & Itinerary Manager */}
         <View style={styles.section}>
           <TripsManager />
         </View>
@@ -36,37 +36,43 @@ export default function HomeScreen() {
           <HealthCard state={healthState} onRefresh={healthState.refetch} />
         </View>
 
-        {/* Milestone 2 Verification Checklist */}
+        {/* Milestone 3 Verification Checklist */}
         <View style={styles.checklistCard}>
-          <Text style={styles.checklistTitle}>Milestone 2 Verification Checklist</Text>
+          <Text style={styles.checklistTitle}>Milestone 3 Verification Checklist</Text>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              PostgreSQL schema configured with SQLAlchemy &amp; Alembic migrations
+              PostgreSQL schema &amp; Alembic migrations for Places, ItineraryDays, and ItineraryItems
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Supabase JWT signature, issuer, audience &amp; expiration validation
+              Deterministic schedule validation (non-overlapping times, valid durations &amp; trip date boundaries)
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Trip CRUD enforcing OWNER, EDITOR &amp; VIEWER role permissions
+              Safe two-phase atomic activity reordering within database transactions
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Cross-user IDOR protection (non-member access rejected with 403)
+              OWNER, EDITOR &amp; VIEWER role-based authorization enforced across all itinerary endpoints
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Deterministic input validation for dates, budget, and traveler count
+              Interactive Map screen with react-native-maps &amp; graceful Web Geo-Route fallback
+            </Text>
+          </View>
+          <View style={styles.checklistItem}>
+            <Text style={styles.checkIcon}>✅</Text>
+            <Text style={styles.checklistText}>
+              Mobile screens for Trip Details, Day Itinerary, Activity Add/Edit, and Map
             </Text>
           </View>
           <View style={styles.checklistItem}>

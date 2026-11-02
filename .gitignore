@@ -1,3 +1,16 @@
+# Environment variables and secrets
+.env
+.env.*
+.env.local
+*.env
+backend/.env
+backend/.env.*
+mobile/.env
+mobile/.env.*
+!.env.example
+!backend/.env.example
+!mobile/.env.example
+
 # Python & Backend
 __pycache__/
 *.py[cod]

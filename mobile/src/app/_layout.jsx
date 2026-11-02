@@ -14,6 +14,10 @@ export default function RootLayout() {
           <Stack.Screen name="explore" options={{ title: 'Explore' }} />
           <Stack.Screen name="(auth)/login" options={{ title: 'Sign In' }} />
           <Stack.Screen name="(auth)/register" options={{ title: 'Register' }} />
+          <Stack.Screen name="trip-details" options={{ title: 'Trip Details' }} />
+          <Stack.Screen name="day-details" options={{ title: 'Day Itinerary' }} />
+          <Stack.Screen name="activity-edit" options={{ title: 'Activity' }} />
+          <Stack.Screen name="map" options={{ title: 'Interactive Map' }} />
         </Stack>
       </AuthProvider>
     </ThemeProvider>
