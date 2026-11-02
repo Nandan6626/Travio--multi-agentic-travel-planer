@@ -1,4 +1,4 @@
-# Travio AI: Setup & Operations Guide (Milestones 1-3 & Duffel Travel API)
+# Travio AI: Setup & Operations Guide (Milestones 1-4: Places, Routing, Weather, Offers)
 
 This guide documents the setup, environment configuration, database migrations, testing, and execution of **Travio AI**.
 
@@ -8,9 +8,12 @@ This guide documents the setup, environment configuration, database migrations, 
 
 - **Backend**: Python 3.10+, FastAPI (modular monolith), SQLAlchemy 2.0 (async), Alembic, Pydantic v2, PyJWT, HTTPX.
 - **Frontend**: React Native, Expo SDK 58, Expo Router, JavaScript & JSX exclusively.
-- **Authentication**: Supabase Auth (JWT Bearer tokens verified on FastAPI).
+- **Authentication**: Supabase Auth (JWT Bearer tokens verified on FastAPI via asymmetric JWKS / ES256).
+- **Places & Geocoding**: Geoapify Places API (`https://api.geoapify.com`)
+- **Routing Engine**: OSRM (Open Source Routing Machine API, pluggable behind `RoutingAdapterInterface`)
+- **Weather Forecasts**: Open-Meteo API (`https://api.open-meteo.com`)
 - **Travel API Provider**: Duffel API (`https://duffel.com/docs`) for flights (`/air/offer_requests`) and accommodations (`/stays/search`).
-- **Database**: PostgreSQL (with in-memory async SQLite fixtures for isolated test suites).
+- **Database**: PostgreSQL / SQLite (with in-memory async SQLite fixtures for isolated test suites).
 
 ---
 
@@ -101,48 +104,22 @@ cd d:\nnaik\Travio-Project\backend
 pytest -v
 ```
 
-All 44 tests execute in an isolated in-memory test database with zero external network dependencies:
+All 60 tests execute in an isolated in-memory test database with zero external network dependencies:
 ```
-tests/integration/test_auth_and_trips.py::test_unauthenticated_profile_access_returns_401 PASSED
-tests/integration/test_auth_and_trips.py::test_get_and_sync_profile PASSED
-tests/integration/test_auth_and_trips.py::test_trip_crud_and_ownership PASSED
-tests/integration/test_auth_and_trips.py::test_cross_user_access_rejection_idor PASSED
-tests/integration/test_auth_and_trips.py::test_role_hierarchy_permissions PASSED
-tests/integration/test_auth_and_trips.py::test_input_validation_rules PASSED
-tests/integration/test_health_api.py::test_health_endpoint_returns_200 PASSED
-tests/integration/test_health_api.py::test_root_endpoint PASSED
-tests/integration/test_health_api.py::test_unknown_endpoint_returns_404 PASSED
-tests/integration/test_health_api.py::test_cors_headers_allowed PASSED
-tests/integration/test_itinerary_and_places.py::test_places_creation_and_coordinate_validation PASSED
-tests/integration/test_itinerary_and_places.py::test_itinerary_days_crud_and_date_validation PASSED
-tests/integration/test_itinerary_and_places.py::test_itinerary_activities_crud_and_schedule_validation PASSED
-tests/integration/test_itinerary_and_places.py::test_reorder_transaction_rollback_on_failure PASSED
-tests/integration/test_itinerary_and_places.py::test_itinerary_authorization_and_cross_user_rejection PASSED
-tests/integration/test_travel_offers_api.py::test_flight_search_api_success PASSED
-tests/integration/test_travel_offers_api.py::test_hotel_search_api_success PASSED
-tests/integration/test_travel_offers_api.py::test_flight_search_with_trip_persistence PASSED
-tests/integration/test_travel_offers_api.py::test_get_stored_travel_offer_and_expiration_detection PASSED
-tests/integration/test_travel_offers_api.py::test_offers_api_provider_unavailable_503 PASSED
-tests/unit/test_database.py::test_successful_database_connection PASSED
-tests/unit/test_database.py::test_failed_database_connection PASSED
-tests/unit/test_database.py::test_get_db_session_lifecycle_and_rollback PASSED
-tests/unit/test_database.py::test_guid_type_decorator PASSED
-tests/unit/test_duffel_adapter.py::test_adapter_initialization_and_headers PASSED
-tests/unit/test_duffel_adapter.py::test_flight_search_builds_payload_correctly PASSED
-tests/unit/test_duffel_adapter.py::test_flight_search_normalizes_duffel_response PASSED
-tests/unit/test_duffel_adapter.py::test_flight_search_handles_malformed_slices PASSED
-tests/unit/test_duffel_adapter.py::test_hotel_search_builds_payload_correctly PASSED
-tests/unit/test_duffel_adapter.py::test_hotel_search_normalizes_duffel_response PASSED
-tests/unit/test_duffel_adapter.py::test_hotel_search_handles_missing_rates PASSED
-tests/unit/test_duffel_adapter.py::test_adapter_raises_auth_error_on_401 PASSED
-tests/unit/test_duffel_adapter.py::test_adapter_raises_rate_limit_error_on_429 PASSED
-tests/unit/test_duffel_adapter.py::test_adapter_raises_service_unavailable_on_500 PASSED
-tests/unit/test_duffel_adapter.py::test_adapter_raises_service_unavailable_on_timeout PASSED
-tests/unit/test_duffel_adapter.py::test_empty_offers_returns_empty_list PASSED
-tests/unit/test_duffel_adapter.py::test_iso_duration_parsing PASSED
-tests/unit/test_security.py::test_verify_valid_token PASSED
-tests/unit/test_security.py::test_verify_expired_token PASSED
-tests/unit/test_security.py::test_verify_invalid_signature PASSED
+backend/tests/integration/test_auth_and_trips.py (6 tests) ............ PASSED
+backend/tests/integration/test_health_api.py (4 tests) ................ PASSED
+backend/tests/integration/test_itinerary_and_places.py (5 tests) ...... PASSED
+backend/tests/integration/test_places_routing_weather_api.py (4 tests)  PASSED
+backend/tests/integration/test_travel_offers_api.py (5 tests) ......... PASSED
+backend/tests/unit/test_database.py (4 tests) ......................... PASSED
+backend/tests/unit/test_duffel_adapter.py (13 tests) .................. PASSED
+backend/tests/unit/test_geoapify_adapter.py (4 tests) ................. PASSED
+backend/tests/unit/test_openmeteo_adapter.py (4 tests) ................ PASSED
+backend/tests/unit/test_osrm_adapter.py (4 tests) ..................... PASSED
+backend/tests/unit/test_security.py (7 tests) ......................... PASSED
+
+============================= 60 passed ==============================
+```
 tests/unit/test_security.py::test_verify_invalid_audience PASSED
 tests/unit/test_security.py::test_verify_malformed_token PASSED
 tests/unit/test_security.py::test_verify_missing_token PASSED
@@ -198,11 +175,33 @@ npm start
 
 ---
 
-## 7. Testing Travel Offers (Duffel API Endpoints)
+## 7. Testing Milestone 4 Provider APIs (Places, Routes, Weather & Offers)
 
-The travel offers endpoints are accessible at `/api/v1/offers/*`:
+### A. Places & POIs Search (Geoapify): `GET /api/v1/places/search`
+```bash
+curl -X GET "http://localhost:8000/api/v1/places/search?text=Paris&categories=tourism.attraction&limit=5" \
+  -H "Authorization: Bearer <your-supabase-jwt>"
+```
 
-### Flight Search: `POST /api/v1/offers/flights/search`
+### B. Routing Calculation (OSRM): `POST /api/v1/routes/calculate`
+```bash
+curl -X POST "http://localhost:8000/api/v1/routes/calculate" \
+  -H "Authorization: Bearer <your-supabase-jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "origin": { "latitude": 48.8566, "longitude": 2.3522 },
+    "destination": { "latitude": 48.8584, "longitude": 2.2945 },
+    "profile": "driving"
+  }'
+```
+
+### C. Live Weather Forecast (Open-Meteo): `GET /api/v1/weather/forecast`
+```bash
+curl -X GET "http://localhost:8000/api/v1/weather/forecast?lat=48.8566&lon=2.3522&days=7" \
+  -H "Authorization: Bearer <your-supabase-jwt>"
+```
+
+### D. Flight Search (Duffel API): `POST /api/v1/offers/flights/search`
 ```bash
 curl -X POST "http://localhost:8000/api/v1/offers/flights/search" \
   -H "Authorization: Bearer <your-supabase-jwt>" \
@@ -217,7 +216,7 @@ curl -X POST "http://localhost:8000/api/v1/offers/flights/search" \
   }'
 ```
 
-### Hotel / Accommodation Search: `POST /api/v1/offers/hotels/search`
+### E. Hotel / Accommodation Search (Duffel Stays): `POST /api/v1/offers/hotels/search`
 ```bash
 curl -X POST "http://localhost:8000/api/v1/offers/hotels/search" \
   -H "Authorization: Bearer <your-supabase-jwt>" \
@@ -233,7 +232,7 @@ curl -X POST "http://localhost:8000/api/v1/offers/hotels/search" \
   }'
 ```
 
-### Retrieve Stored Offer & Check Expiration: `GET /api/v1/offers/{offer_id}`
+### F. Retrieve Stored Offer & Check Expiration: `GET /api/v1/offers/{offer_id}`
 Returns the normalized offer details alongside `is_expired: true/false`.
 
-> **Data Integrity Guarantee**: All returned prices correspond strictly to live Duffel quotes with explicit currency, expiration timestamp, and offer IDs. Offers are never fabricated. If Duffel is unreachable or invalid credentials are supplied, the API responds with HTTP 503 (or HTTP 500 configuration notice) rather than mock/fake prices.
+> **Data Integrity Guarantee**: All returned prices correspond strictly to live Duffel quotes with explicit currency, expiration timestamp, and offer IDs. Offers and weather are never fabricated. If providers are unreachable, the API responds with HTTP 503 rather than mock/fake prices.

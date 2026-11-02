@@ -296,11 +296,20 @@ erDiagram
 - **Data Integrity & Non-Fabrication**: Price amounts and currencies are never invented, estimated, or fabricated under the guise of verified prices. If provider results are not available or expired, honest empty responses or 503 provider-unavailable statuses are returned.
 
 ### Primary Provider Adapters (Unified Modern Stack)
-- **Flights & Accommodations / Stays**: **Duffel API** (`https://duffel.com/docs`)
+- **Places & POIs**: **Geoapify Places & Geocoding API** (`backend/app/providers/places/geoapify_adapter.py`)
+  - *Geocoding*: `/v1/geocode/search` (resolves destination strings like "Paris" to coordinates).
+  - *Places & POIs*: `/v2/places` (searches attractions, restaurants, museums within radius).
+  - *Caching*: Automatically caches queried provider places into the `places` table by `provider_id`.
+- **Routing & Travel Duration**: **OSRM (Open Source Routing Machine)** (`backend/app/providers/routing/osrm_adapter.py`)
+  - *Interface*: Implements `RoutingAdapterInterface` for pluggable routing engines.
+  - *Route Engine*: `/route/v1/{profile}/{coordinates}` (distance, duration, GeoJSON geometry).
+  - *Traffic Transparency*: Clearly indicates free-flow estimates (`is_traffic_adjusted=False`).
+- **Weather Forecast**: **Open-Meteo API** (`backend/app/providers/weather/openmeteo_adapter.py`)
+  - *Forecast Engine*: `/v1/forecast` (destination-based coordinates).
+  - *Observations*: Temperature, humidity, wind, and WMO standard weather code translation.
+  - *7-Day Forecast*: Daily max/min temperatures, precipitation probabilities, condition summaries.
+- **Flights & Accommodations / Stays**: **Duffel API** (`backend/app/providers/travel/duffel_adapter.py`)
   - *Context*: Replaced legacy Amadeus Self-Service APIs due to developer portal discontinuation.
   - *Flights API*: `POST /air/offer_requests` (slices, passengers, cabin classes, duration, stops, exact prices, validity).
   - *Stays API*: `POST /stays/search` (coordinates/radius, check-in/out, guests, rooms, rate details, cancellation terms).
   - *Authentication*: Bearer token (`DUFFEL_ACCESS_TOKEN`) with `Duffel-Version: v2` header.
-- **Places & POIs**: Geoapify Places API (with fallback to OpenStreetMap / Nominatim)
-- **Routing & Travel Duration**: OSRM (Open Source Routing Machine API)
-- **Weather Forecast**: Open-Meteo API (free, reliable, requires no API key)

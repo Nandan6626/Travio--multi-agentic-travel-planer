@@ -1,11 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { HealthCard } from '../components/HealthCard';
 import { TripsManager } from '../components/TripsManager';
 import { useHealth } from '../hooks/useHealth';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const healthState = useHealth(false);
 
   return (
@@ -21,9 +23,27 @@ export default function HomeScreen() {
             Autonomous Multi-Agent Travel Planning &amp; Execution
           </Text>
           <View style={styles.milestonePill}>
-            <Text style={styles.milestoneText}>Milestone 3 • Itineraries, Activity Editing &amp; Interactive Maps</Text>
+            <Text style={styles.milestoneText}>Milestone 4 • Real Places, Routing, Weather &amp; Travel Offers</Text>
           </View>
         </View>
+
+        {/* Milestone 4: Travel Data Hub Link Card */}
+        <TouchableOpacity
+          style={styles.exploreBanner}
+          onPress={() => router.push('/explore')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.exploreIconCol}>
+            <Text style={styles.exploreBannerIcon}>🌍</Text>
+          </View>
+          <View style={styles.exploreBannerTextCol}>
+            <Text style={styles.exploreBannerTitle}>Explore Live Travel Data</Text>
+            <Text style={styles.exploreBannerSubtitle}>
+              Places (Geoapify), Routes (OSRM), Weather (Open-Meteo) &amp; Offers (Duffel API)
+            </Text>
+          </View>
+          <Text style={styles.exploreBannerArrow}>→</Text>
+        </TouchableOpacity>
 
         {/* Milestone 2 & 3: Authenticated Trip & Itinerary Manager */}
         <View style={styles.section}>
@@ -36,49 +56,43 @@ export default function HomeScreen() {
           <HealthCard state={healthState} onRefresh={healthState.refetch} />
         </View>
 
-        {/* Milestone 3 Verification Checklist */}
+        {/* Milestone 4 Verification Checklist */}
         <View style={styles.checklistCard}>
-          <Text style={styles.checklistTitle}>Milestone 3 Verification Checklist</Text>
+          <Text style={styles.checklistTitle}>Milestone 4 Verification Checklist</Text>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              PostgreSQL schema &amp; Alembic migrations for Places, ItineraryDays, and ItineraryItems
+              Geoapify real places &amp; destination geocoding with categories, ratings &amp; database caching
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Deterministic schedule validation (non-overlapping times, valid durations &amp; trip date boundaries)
+              OSRM routing adapter calculating distances, durations &amp; GeoJSON path geometry
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Safe two-phase atomic activity reordering within database transactions
+              Open-Meteo live weather observation &amp; 7-day forecast with WMO conditions
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              OWNER, EDITOR &amp; VIEWER role-based authorization enforced across all itinerary endpoints
+              Duffel Flights &amp; Stays API integration with price and currency preservation
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Interactive Map screen with react-native-maps &amp; graceful Web Geo-Route fallback
+              Unified provider services &amp; Pydantic validation schemas distinguishing estimated vs verified prices
             </Text>
           </View>
           <View style={styles.checklistItem}>
             <Text style={styles.checkIcon}>✅</Text>
             <Text style={styles.checklistText}>
-              Mobile screens for Trip Details, Day Itinerary, Activity Add/Edit, and Map
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <Text style={styles.checkIcon}>✅</Text>
-            <Text style={styles.checklistText}>
-              Pure JavaScript/JSX mobile frontend with Expo SecureStore session persistence
+              Mobile Travel Hub UI for interactive place search, route calculations, weather &amp; offer queries
             </Text>
           </View>
         </View>
@@ -148,6 +162,48 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  exploreBanner: {
+    width: '100%',
+    backgroundColor: '#1E293B',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#0284C7',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  exploreIconCol: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#0369A1',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  exploreBannerIcon: {
+    fontSize: 22,
+  },
+  exploreBannerTextCol: {
+    flex: 1,
+  },
+  exploreBannerTitle: {
+    color: '#F8FAFC',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  exploreBannerSubtitle: {
+    color: '#94A3B8',
+    fontSize: 11,
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  exploreBannerArrow: {
+    color: '#38BDF8',
+    fontSize: 20,
+    fontWeight: '700',
+    paddingHorizontal: 4,
   },
   section: {
     width: '100%',

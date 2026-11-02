@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Optional, Dict, Any, List
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PlaceBase(BaseModel):
@@ -26,3 +26,27 @@ class PlaceRead(PlaceBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class PlaceSearchResult(BaseModel):
+    provider_id: str = Field(..., description="External Geoapify place identifier")
+    name: str = Field(..., description="Place name")
+    address: Optional[str] = Field(None, description="Formatted address")
+    latitude: float = Field(..., description="Latitude coordinate")
+    longitude: float = Field(..., description="Longitude coordinate")
+    category: str = Field(default="attraction", description="Primary category")
+    categories: List[str] = Field(default_factory=list, description="All tagged categories")
+    rating: Optional[float] = Field(None, description="User rating if supplied by provider")
+    opening_hours: Optional[Dict[str, Any]] = Field(None, description="Opening hours structure")
+    website: Optional[str] = Field(None, description="Official website URL")
+    is_cached: bool = Field(default=False, description="Whether this place is already cached in local database")
+    cached_place_id: Optional[uuid.UUID] = Field(None, description="Internal Place UUID if already cached")
+
+
+class DestinationSearchResult(BaseModel):
+    name: str = Field(..., description="City or destination name")
+    formatted_address: str = Field(..., description="Formatted location string")
+    country: Optional[str] = Field(None, description="Country name")
+    country_code: Optional[str] = Field(None, description="ISO two-letter country code")
+    latitude: float = Field(..., description="Latitude coordinate")
+    longitude: float = Field(..., description="Longitude coordinate")
+    place_id: Optional[str] = Field(None, description="External provider place ID")

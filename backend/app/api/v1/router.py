@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import health, profiles, trips, days, items, places, offers
+from app.api.v1 import health, profiles, trips, days, items, places, routes, weather, offers
 
 api_v1_router = APIRouter()
 
@@ -15,5 +15,7 @@ api_v1_router.include_router(days.router, tags=["Itinerary Days"])
 api_v1_router.include_router(items.router, tags=["Itinerary Activities"])
 api_v1_router.include_router(places.router, prefix="/places", tags=["Places"])
 
-# Duffel Travel Provider Router (Flights & Stays)
+# Milestone 4 routers: Real Places, Routing, Weather & Travel Offers
+api_v1_router.include_router(routes.router, prefix="/routes", tags=["Routing"])
+api_v1_router.include_router(weather.router, prefix="/weather", tags=["Weather"])
 api_v1_router.include_router(offers.router, prefix="/offers", tags=["Travel Offers"])
